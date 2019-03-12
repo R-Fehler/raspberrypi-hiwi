@@ -1,0 +1,4 @@
+dtparam=i2c_arm=on
+dtparam=i2c1_baudrate=400000
+dtparam=i2c1=on
+dtoverlay=pps-gpio,gpiopin=4

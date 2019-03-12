@@ -1,0 +1,5 @@
+- Time UTC --> Automatisch auf Deutsche Zeit
+
+- verschiedene Ordner auf Server für entsprechenden Pi
+
+- Softwareseitig I2C

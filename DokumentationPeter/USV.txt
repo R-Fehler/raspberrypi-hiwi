@@ -1,0 +1,7 @@
+#USV
+
+	http://www.modmypi.com/raspberry-pi/breakout-boards/pi-modules/ups-pico
+
+	https://www.rasppishop.de/SUSV-pi-basic-USV-fuer-den-Raspberry-Pi (ab 30 September)
+
+	http://www.piusv.de/ (frühstens ab ende August)

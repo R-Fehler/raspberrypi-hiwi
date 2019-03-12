@@ -1,0 +1,15 @@
+## Python Logger
+
+How To Parse Conifg Files
+	http://www.decalage.info/python/configparser
+
+Automatisch starten beim booten
+	http://jankarres.de/2014/07/raspberry-pi-autostart-von-programmen-einrichten/
+
+python programm anzeigen lassen
+	ps -ef | grep python
+
+Wird GPIO Pin 24 mit  3V3 verbunden wird Der Logger beim booten nicht gestartet
+
+um GPS logger zu überprüfen :
+	tail -f /logger/log_file

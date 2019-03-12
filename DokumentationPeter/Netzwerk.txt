@@ -1,0 +1,78 @@
+## Netzwerk
+
+## WLAN
+
+# wkit-802.1x einrichten
+
+- wpa suplicant einstellen
+  sudo nano /etc/wpa_supplicant/wpa_supplicant.conf
+
+	 network={
+			ssid="wkit-802.1x"
+			key_mgmt=WPA-EAP
+			pairwise=CCMP TKIP
+			group=CCMP TKIP
+			eap=TTLS
+			phase2="auth=PAP"
+			anonymous_identity="anonymous@kit.edu"
+			identity="fast-fast-jma-0001"
+			password="=eELx(5r"
+	 }
+
+	 
+# Netzlaufwerk
+
+- Zugangsdaten für KIT wlan :
+	user : fast-fast-jma-0001
+	passw: =eELx(5r
+
+- CIFS Share : \\FAST_LFE_VM05.fast.kit.edu\jh_ma_data
+
+- Windows : 
+	"net use z:\\FAST_LFE_VM05.fast.kit.edu\jh_ma_data / user:kit\fast-fast-jma-0001 =eELx(5r"
+
+- Linux :
+	sudo nano ~/.smbcredentials
+	username=kit\fast-fast-jma-001
+	password==eELx(5r"
+	chmod 600 ~/.smbcredentials
+
+	/etc/fstab
+	//FAST_LFE_VM05.fast.kit.edu/jh_ma_data /media/localdate cifs
+	credentials=/home/username/.smbcredentials,isocharset=utf8,sec=ntlm 0 0
+
+# Wlan - Accesspoint
+
+Anleitung um Wlan Accesspoint einzurichten :
+http://www.forum-raspberrypi.de/Thread-tutorial-rp-b-accesspoint-ap-hotspot-mit-edimax-ew-7811un
+
+	SSID: fastpi
+	PW : fasTpi!!
+
+- Wlan passwort ändern :
+	sudo nano /etc/hostapd/hostapd.conf
+
+	IP : 192.168.1.1
+	DHCP  1.10 - 1.50
+
+- Wenn Accesspoint konfiguriert wurde kann er über fogende befehle deaktivert werden :
+
+	sudo service hostapd stop
+	sudo service isc-dhcp-server stop
+
+	sudo update-rc.d hostapd disable
+	sudo update-rc.d isc-dhcp-server disable
+
+
+# LAN
+
+- IP - Adressen
+
+	sudo nano /etc/dhcpcd.conf
+
+		adress 129.13.125.29
+		netmask 255.255.255.0
+		gateway 129.13.125.254
+		dns-nameservers 129.13.64.5
+
+http://www.elektronik-kompendium.de/sites/raspberry-pi/1912151.htm

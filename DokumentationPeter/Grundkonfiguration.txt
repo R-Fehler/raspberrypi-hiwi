@@ -1,0 +1,31 @@
+## Raspberry grundkonfiguration
+
+Hostname : fastpi
+IP einstellungen : ifconfig
+
+User/Passwort
+pi/raspberry
+
+
+#SMB User erstellen
+
+	sudo smbpasswd -a [user]
+
+#HDMI Standartm‰ﬂig aktiviern - warum?
+
+	sudo nano /boot/config.txt
+
+-Folgende Zeile aktiviern :
+	hdmi_force_hotplug=1
+
+	
+# Feste IP-Adressen
+	
+	fastpi01  (Orange Samsung SD-Karte 32GB)
+	lan ip : 129.13.125.27
+
+	fastpi02 (schwarze Kingston SD-Karte 8GB)
+	lan ip : 129.13.125.28
+
+	fastpi03 (Rot-Grau SanDisk SD-Karte 8GB)
+	lan ip : 129.13.125.29

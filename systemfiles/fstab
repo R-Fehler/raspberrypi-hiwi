@@ -1,0 +1,3 @@
+#cifs or smbfs
+${SAMBA_REMOTE} ${SAMBA_MOUNT_DIR} cifs credentials=/etc/.smbcredentials,noauto,_netdev,sec=ntlm,nounix 0 0
+

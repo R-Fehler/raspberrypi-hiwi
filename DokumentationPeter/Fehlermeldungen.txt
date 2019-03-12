@@ -1,0 +1,14 @@
+## Fehlermeldungen
+
+
+# GDBus.Error:org.freedesktop.PolicyKit1.Error.Failed: Cannot determine user of subject
+
+	Lösung : 
+
+		Open LXTerminal.
+		Type lxsession-edit to open Desktop Session Settings dialog box.
+		Uncheck LXPolKit.
+		Click OK.
+		Reboot.
+		
+		

@@ -1,0 +1,67 @@
+#!/bin/sh -e
+#
+# rc.local
+#
+# This script is executed at the end of each multiuser runlevel.
+# Make sure that the script will "exit 0" on success or any other
+# value on error.
+#
+# In order to enable or disable this script just change the execution
+# bits.
+#
+
+# Set HWClock
+
+if [ -e /sys/class/i2c-adapter/i2c-1/new_device ]; then
+    # 60: -- -- -- -- -- -- -- -- UU -- -- 6b -- -- -- -- 
+    if [ $(i2cdetect -y 1 | grep 68 | wc -l) = "1" ]; then
+        # check if RTC is available
+#        ls /dev/ | grep rtc
+        echo ds1307 0x68 > /sys/class/i2c-adapter/i2c-1/new_device || /bin/true
+        # Show HW Clock's time
+        sleep 1
+        hwclock --show -u --debug || /bin/true
+        # sync to Sys
+        hwclock --hctosys -u || /bin/true
+        date
+        sleep 4
+        echo "4s :\$(date); should be: \$(hwclock --show -u)"
+    else
+        echo "RTC DS1307 is not present. I2C is working."
+    fi
+else
+    echo "RTC DS1307 is not present. I2C is not working."
+fi
+
+# Print the IP address
+for i in $(seq 1 25);do
+    sleep 1
+    _IP=\$(/bin/hostname -I)
+    if [ "\${_IP}" ]; then
+        printf "My IP address is %s\\n" "\${_IP}"
+        break
+    fi
+done
+
+#start GPS-Deamon
+/usr/sbin/gpsd /dev/ttyAMA0 -F /var/run/gpsd.sock || /bin/true
+
+# start audio recorder script via trigger.
+
+# currently disabled, because it is not tested!
+#/usr/bin/udevadm trigger --action=add --subsystem-match=bluetooth --property-match=address="${BC127_MAC,,}" || /bin/true
+
+#if [ -x ${UDEV_BLUETOOTH_STARTER} ]; then # is executable file
+#    echo "rc.local: start bt-logger ${UDEV_BLUETOOTH_STARTER}."
+#    ${UDEV_BLUETOOTH_STARTER} &
+#fi
+
+# Set GPS Rate to 10Hz
+sleep 2
+printf "Set GPS Rate to 10Hz\\n"
+su pi -c "sudo /usr/bin/python3 ${GPS_CONFIG_SCRIPT}" || /bin/true
+sleep 2
+printf "Set GPS Rate to 10Hz\\n"
+su pi -c "sudo /usr/bin/python3 ${GPS_CONFIG_SCRIPT}" || /bin/true
+
+exit 0

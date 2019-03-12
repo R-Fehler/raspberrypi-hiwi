@@ -1,0 +1,3 @@
+# SAMBA Freigabe Einrichten
+
+http://jankarres.de/2013/11/raspberry-pi-samba-server-installieren/

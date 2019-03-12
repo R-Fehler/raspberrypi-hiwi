@@ -1,0 +1,11 @@
+[Unit]
+Description=Record BT Stream by pulseaudio
+Requires=multi-user.target
+
+[Service]
+Type=simple
+ExecStart=${UDEV_BLUETOOTH_STARTER}
+
+[Install]
+#WantedBy=multi-user.target
+

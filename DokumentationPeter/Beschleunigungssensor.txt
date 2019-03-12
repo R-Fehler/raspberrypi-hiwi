@@ -1,0 +1,19 @@
+## Beschleunigungssensor
+
+# MPU 6050
+
+Gute Anleitungen und Code: "Blog Bitify":http://blog.bitify.co.uk/search/label/MPU-6050
+
+# Installieren des Beschleunigungsensors : 
+
+http://blog.bitify.co.uk/2013/11/interfacing-raspberry-pi-and-mpu-6050.html
+
+https://learn.adafruit.com/adafruits-raspberry-pi-lesson-4-gpio-setup/configuring-i2c
+
+If you are running a recent Raspberry Pi (3.18 kernel or higher) you will also need to update the /boot/config.txt file. Edit it with sudo nano /boot/config.txt and add the text
+dtparam=i2c1=on
+dtparam=i2c_arm=on
+
+http://www.forum-raspberrypi.de/Thread-mcp23017-e-sp-wird-nicht-erkannt
+
+https://github.com/bitify/raspi/blob/master/i2c-sensors/bitify/python/sensors/mpu6050.py

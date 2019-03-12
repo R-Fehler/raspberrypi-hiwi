@@ -1,0 +1,13 @@
+[Unit]
+Description=Sensor Recorder
+After=multi-user.target
+
+[Service]
+Type=simple
+User=${PI_USER}
+Restart=always
+ExecStart=/usr/bin/python3 ${LOGGER_SCRIPT}
+
+[Install]
+WantedBy=multi-user.target
+

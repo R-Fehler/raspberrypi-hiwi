@@ -1,0 +1,100 @@
+#!/usr/bin/expect -f
+#
+#
+# for debug mode:
+#exp_internal 1
+
+# having 'locales' error, use:
+# sudo dpkg-reconfigure locales
+# while there are 'locales' errors,
+# this script will not work properly
+
+# set expect timeout
+set timeout 15
+set baud 9600
+#set address "20:FA:BB:03:7C:4A"
+set port "rfcomm0"
+set scriptdir [file dirname [file normalize $argv0]]
+set configfile "$scriptdir/../../configfile.cfg"
+log_user 0 # there will be no standard output from terminal
+
+
+# set cmdline args.
+set last_cmd ""
+if { $argc >= 1 } {
+  set last_cmd [lindex $argv 0 ]
+}
+if { $argc >= 2 } {
+  set configfile [lindex $argv 1 ]
+}
+set address [exec /bin/bash -c "source $configfile; echo \${BC127_MAC}"]
+set port [exec /bin/bash -c "source $configfile; echo \${RF_TTY}"]
+set completeport "/dev/$port"
+send_user "configfile: <$configfile> ; address: <$address> ; port: <$port> ; completeport: <$completeport>\n"
+#exec rfcomm bind $port $address
+# set ttyUSB
+send_user "spawn -open \[open /dev/$port r+\]\n"
+spawn -open [open "/dev/$port" r+]
+    # -parenb means don't use a parity bit
+    # -cstopb means "not 2 stop bits, but 1"
+    # cs8 means 8 bits
+    # -echo means no echo (full duplex?)
+send_user "stty $baud raw -echo cs8 -parenb -cstopb onlcr < $completeport\n"
+stty $baud raw -echo cs8 -parenb -cstopb onlcr < $completeport
+
+#error codes for BC127 via rfcomm:
+#0x0003 Unknown error
+#0x0011 Command not allowed with the current configuration
+#0x0012 Command not found
+#0x0013 Wrong parameter
+#0x0014 Wrong number of parameters
+#0x0015 Command not allowed in the current state
+#0x0016 Device already connected
+#0x0017 Device not connected
+#0x0018 Command is too long
+#0x0100 Fail to read battery voltage
+#0x1001 Fail to initiate IAP due to a wrong configuration
+#0x1002 Fail to communicate with the Apple MFI Co-processor
+#0x1003 Fail to configure cap sense
+#0xFF01 License key is missing
+#0xFF02 License key is invalid
+#0xF00X Critical error
+
+# UART sending function
+# use: 'send_uart "COMMAND" ["expected return string"]'
+proc send_uart {send expect} {
+  send_user "\n$send\n"
+  set systemTime [clock seconds]
+  incr systemTime 5
+  set timeout 2
+  send "$send\r"
+  while {$systemTime > [clock seconds]} {
+      expect {
+          timeout { send_user "\nexpect timed out.\n"; break }
+          "OK" { break }
+          "ERROR*\r" { send_user "Error: $expect_out(0,string)\n"; break }
+          "$expect" {send_user " $expect_out(0,string)\n"; continue}
+          "*\r"
+      }
+  }
+}
+# send via tty to BC127
+
+set timeout 10
+
+send_uart "STATUS" "*\r"
+send_uart "GET BATT_CONFIG" "*\r"
+send_uart "BATTERY_STATUS" "*\r"
+#send_uart "MUSIC 11 PLAY" "*\r"
+send_uart "RSSI 11" "*\r"
+if { $last_cmd != "" } {
+  send_uart "$last_cmd" "*\r"
+}
+send_user "\nfinished.\n"
+# send settings to BC127
+
+close
+# close connection
+#exec rfcomm unbind $port
+
+exit 0

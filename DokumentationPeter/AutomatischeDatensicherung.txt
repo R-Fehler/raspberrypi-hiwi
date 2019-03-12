@@ -1,0 +1,6 @@
+#Automatische datensicherung
+
+Befehl zum einbinden von Netzlaufwerken :
+
+	sudo mount -t cifs //172.20.14.253/Sicherungen/fast /mnt -o user=ATSV
+

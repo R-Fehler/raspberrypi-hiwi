@@ -1,0 +1,36 @@
+##GPIO - Trigger für Schlagloch erkennung
+
+
+
+# Initialiserung der GPIO Pins
+
+- Pin belegung: http://www.elektronik-kompendium.de/sites/raspberry-pi/1907101.htm
+
+
+	# RPi.GPIO Layout verwenden (wie Pin-Nummern)
+	GPIO.setmode(GPIO.BOARD)
+
+	# Pin 18 (GPIO 24) auf Input setzen  (schlagloch links)
+	GPIO.setup(18, GPIO.IN)
+
+	# Pin 16 (GPIO 23) auf Input setzen  (schlagloch rechts)
+	GPIO.setup(16, GPIO.IN)
+
+	# Pin 22 (GPIO 25) auf Input setzen  (logger deaktivieren falls HIGH anliegt)
+	GPIO.setup(22, GPIO.IN)
+
+
+# Schlagloch links 
+
+Variable : schlag_links
+
+	# Pin 18 (GPIO 24) auf Input setzen  (schlagloch links)
+	GPIO.setup(18, GPIO.IN)
+
+
+# Schlagloch rechts
+
+Varibale : schlag_rechts
+
+	#Pin 16 (GPIO 23) auf Input setzen  (schlagloch rechts)
+	GPIO.setup(16, GPIO.IN)

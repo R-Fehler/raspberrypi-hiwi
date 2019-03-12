@@ -1,0 +1,8 @@
+pps-gpio
+spi-bcm2708
+i2c-dev
+i2c-bcm2708 #baudrate=400000
+#default i2c is normal i2c-pins
+#i2c-gpio-param busid=0 sda=2 scl=3 udelay=3x
+rtc-ds1307
+

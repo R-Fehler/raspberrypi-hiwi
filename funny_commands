@@ -1,0 +1,20 @@
+#!/bin/bash
+
+# this file will contain commands, useful for debugging the raspberry pi
+
+exit # we dont want to execute this script.
+
+# Ausrechnen der Mittleren Abtastrate
+# dazu alle raten in eine Datei schreiben.
+sed -n "s/.*\( :.*Hz\).*/\1/p" SensorRecorder_log | cut -d " " -f3 | cut -d "H" -f1 > rates.txt
+# und dann Mittelwert berechnen.
+awk '{a+=$1} END{print a/NR}' rates.txt
+
+# log während der ausführund des programms anzeigen:
+tail -f $LOG_NAME
+
+# GPS auf 10 Hz stellen
+sudo python3 ~/git/raspberrypi/Programs/gpsconfig.py 
+
+# ${var,,} -> to lower case
+

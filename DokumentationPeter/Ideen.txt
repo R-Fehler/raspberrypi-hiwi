@@ -1,0 +1,1 @@
+Die in der Revision 2 hinzugekommene GPIO-Schnittstelle P6 erlaubt es, den Raspberry Pi zurückzusetzen bzw. zu starten, nachdem er heruntergefahren wurde.

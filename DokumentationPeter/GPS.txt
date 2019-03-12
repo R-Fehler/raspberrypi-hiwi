@@ -1,0 +1,52 @@
+## Allgemeine GPS daten auslesen
+
+
+# Zwischen USB und UART GPS wechseln :
+
+	sudo nano /etc/rc.local
+
+vor dem Verwendeten Anschluss darf ein "#" stehen und vor dem anschluss der nicht verwendet wird muss ein "#" stehen
+
+# Ultimate GPS
+
+- Mit USB Kabel
+	sudo gpsd /dev/ttyUSB0 -F /var/run/gpsd.sock
+
+- Über Steckbrett angeschlossen
+	sudo gpsd /dev/ttyAMA0 -F /var/run/gpsd.sock
+
+# U-Blox GPS
+
+- Mit USB Kabel
+	sudo gpsd /dev/ttyACM0 -F /var/run/gpsd.sock
+	cgps -s
+
+- Bei Problemen 
+	sudo killall gpsd
+
+	https://learn.adafruit.com/adafruit-ultimate-gps-on-the-raspberry-pi/setting-everything-up
+
+# vielleicht noch nützlich
+
+	https://www.cooking-hacks.com/documentation/tutorials/geolocation-tracker-gprs-gps-geoposition-sim908-arduino-raspberry-pi#gps
+
+## Ultimate GPS auf 10Hz update umstellen
+
+- In Zeile 5 die Baudrate einstellen :
+	default : 
+
+		serialPort = Serial("/dev/ttyAMA0", 9600, timeout=2)
+
+- In Zeile 30 "#" entfernen 
+
+		# outStr = '$PMTK251,38400*27\r\n'
+
+- In Zeile 5 die Baudrate auf geänderten Wert einstellen (38400) :
+	default : 
+		serialPort = Serial("/dev/ttyAMA0", 38400, timeout=2)
+
+- In Zeile "#" entfernen 
+ 
+		#outStr = '$PMTK220,100*2F\r\n'
+ 
+siehe Quellcode: gpsconfig
