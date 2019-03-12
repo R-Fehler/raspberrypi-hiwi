@@ -3,6 +3,13 @@
 import RPi.GPIO as GPIO
 import time
 import os
+from sense_hat import SenseHat
+
+#init sense hat
+sense=SenseHat()
+blue=(0,0,255)
+red=(255,0,0)
+green=(0,255,0)
 
 # GPIO-Ports
 Counter_17 = 0
@@ -27,6 +34,8 @@ def isr17(channel):
     global Counter_17
     Counter_17 = Counter_17 + 1
     print("Counter_17: %d" % Counter_17)
+    os.system("./startrecord.sh")
+    sense.clear(green)
 
 # Callback fuer GPIO 18
 
@@ -35,20 +44,26 @@ def isr18(channel):
     global Counter_18
     Counter_18 = Counter_18 + 1
     print("Counter_18: %d" % Counter_18)
-
+    os.system("./stoprecord.sh")
+    sense.clear(red)
 
 # Interrupts aktivieren
 GPIO.add_event_detect(22, GPIO.FALLING, callback=isr17, bouncetime=200)
 GPIO.add_event_detect(17, GPIO.FALLING, callback=isr18, bouncetime=200)
 
 # Endlosschleife wie oben
+
+sense.clear(blue)
+
 try:
     while True:
         # nix Sinnvolles tun
         Tic = Tic + 1
         print("Tic %d" % Tic)
+        os.system("./check-record-service.sh")
         time.sleep(1)
 
 except KeyboardInterrupt:
     GPIO.cleanup()
+    sense.clear()
     print("\nBye")
