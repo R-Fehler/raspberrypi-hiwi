@@ -268,3 +268,20 @@ Nun sollte nach einem Neustart das Gerät im BL Manager sichtbar sein wie hier:
 
 ![BL Manager](./docs/Bluetooth.png)
 
+## manuelle Aufnahme starten
+
+durch aufrufen des Programms: `./Programs/bt_audo_recorder.py` wie folgt lässt sich
+eine Aufnahme starten.
+Dabei kann diese mit Strg+C oder SIGINT beendet werden. 
+eine `.gz` Datei unter `./audiolog` wird erstellt mit der enstprechenden `.wav` Datei.
+dafür muss die Bluetooth Verbindung sichergestellt werden. 
+(Blaue LED blinkt, Testaufnahme).
+wenn die Verbindung nicht vorhanden ist kann diese mit 
+
+    $ bluetoothctl
+    [bluetooth]# connect 20:FA:BB:03:7C:4B 
+
+hergestellt werden. dabei muss 20:FA... durch die korrekte MAC Adresse ersetzt werden 
+wenn ein anderes Modul verwendet wird. Dies funktioniert im Gegensatz zum BL Manager zuverlässiger.
+
+    python3 bt_audo_recorder.py ./audiolog/ 2>&1
