@@ -139,7 +139,11 @@ Shell:
 # Port für Ubuntu / Linux
 
 Hier wird beschrieben wie das ATM Modul zur Audioaufnahme unter Ubuntu oder anderen 
-Debian basierten Distributionen einzurichten ist. releveante Dateien sind unter `./PC-Port-Audio-BT` zu finden.
+Debian basierten Distributionen einzurichten ist. relevante Dateien sind unter `./PC-Port-Audio-BT` zu finden.
+
+Es ist zu empfehlen einen seperaten PC oder Linux Installation zu verwenden, da 
+in den `/` Systemdateien  "gepfuscht" wird und somit das ganze unter Umständen
+Probleme bereitet. 
 
 die Installation erfordert das angepasste durchführen von den Skript Bestandteilen:
 aus `./install/raspberry_InCarSensors_and_bt_installer.sh`.
@@ -211,7 +215,7 @@ touch ${USER_CONFIG_FILE}
 # das ./bt_pair... skript muss im selben Ordner sein wie die configfile damit es so klappt. 
 ```
 
-das Skript `./install/bt_pair_BC127.exp` muss angepasst auf den neuen Ort der configfile.cfg
+das Skript `./install/bt_pair_BC127.exp` muss auf den neuen Ort der configfile.cfg angepasst werden.
 
 ```bash
 #!/usr/bin/expect -f
