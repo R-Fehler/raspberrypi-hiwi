@@ -136,3 +136,135 @@ Shell:
     zsh
     oh-my-zsh
 
+# Port für Ubuntu / Linux
+
+Hier wird beschrieben wie das ATM Modul zur Audioaufnahme unter Ubuntu oder anderen 
+Debian basierten Distributionen einzurichten ist. releveante Dateien sind unter `./PC-Port-Audio-BT` zu finden.
+
+die Installation erfordert das angepasste durchführen von den Skript Bestandteilen:
+aus `./install/raspberry_InCarSensors_and_bt_installer.sh`.
+Dabei die files unter`/etc/`... gezielt ersetzen durch files aus `./PC-Port-Audio-BT/raspi-bt-files/etc/` wenn sie mit writeout_file aufgerufen werden.
+APT_GET_INSTALL von Hand ausführen.
+Die Variable `$PI_USER` durch den eigenen Linux User ersetzen.(hier `richard`)
+
+```bash
+bt_audio_install()
+{
+#Installation:
+echo "Installing pyaudio for python3 via apt"
+APT_GET_INSTALL pulseaudio pulseaudio-utils pulseaudio-module-bluetooth bluez-tools python3-pyaudio moreutils
+# moreutils for ts (timestamp)
+writeout_file "/etc/bluetooth/audio.conf" nosubst
+
+writeout_file "/etc/bluetooth/main.conf" nosubst append
+echo "Allowing pulseaudio to use bluetooth:"
+echo 'resample-method=trivial' | sudo tee -a /etc/pulse/daemon.conf
+
+echo "using interrupt methode in udev:"
+sudo sed -i 's/load-module module-udev-detect/load-module module-udev-detect tsched=0/g' /etc/pulse/system.pa
+
+#load additional modules for bluetooth
+writeout_file "/etc/pulse/system.pa" append nosubst
+writeout_file "/etc/systemd/system/pulseaudio.service"
+
+# allow autoconnect via a2dp
+#writeout_file "/etc/pulse/default.pa" append nosubst
+
+#rfcomm bind rfcomm0 <dev_id> 
+#rfcomm unbind rfcomm0 
+
+#pacat --record -d bluez_source.20_FA_BB_03_7C_4A | sox -t raw -r 44100 -e signed-integer -L -b 16 -c 2 - "output.wav"
+# https://github.com/ev3dev/ev3dev/issues/198
+# https://bitbucket.org/ehsmaes/raspberry-pi-audio-receiver-install
+
+#restart pulseaudio
+sudo systemctl daemon-reload
+# enable for run on bootup
+sudo systemctl enable pulseaudio.service
+sudo systemctl start pulseaudio.service
+
+echo "In die richtige Gruppe hinzufügen"
+# will need normally one relogin
+sudo usermod -a -G pulse,pulse-access,audio root
+sudo usermod -a -G pulse,pulse-access,audio,lp $PI_USER
+#or
+#$ sudo usermod -a -G lp $PI_USER
+
+#weggelassen unter ubuntu, da bl sowieso hochgefahren wird
+writeout_file "/etc/udev/rules.d/10-bluetooth.rules" nosubst
+#weggelassen unter ubuntu, da bl sowieso hochgefahren wird
+#echo "Reload udev rules"
+sudo udevadm control --reload-rules
+#sudo service bluetooth restart
+#sudo service udev restart
+}
+
+configureBTModul()
+{
+# pair Bluetooth
+# syntax: bt_pair_BC127.exp Config_file_for_writing_MAC console for BC127
+touch ${USER_CONFIG_FILE}
+
+#hier ein configfile bspw. unter ~/configfile.cfg anlegen
+# jetzt analog hierzu, während das ATM Modul via UART verbunden ist!
+#richard@richardubuntu:~$ ./bt_pair_BC127.exp configfile.cfg /dev/ttyUSB0 
+# das ./bt_pair... skript muss im selben Ordner sein wie die configfile damit es so klappt. 
+```
+
+das Skript `./install/bt_pair_BC127.exp` muss angepasst auf den neuen Ort der configfile.cfg
+
+```bash
+#!/usr/bin/expect -f
+#
+# this script will automate the pairing of a bluetooth device with bluez5
+# on ttyUSB0 is a BS127 
+# start with: ./bt_pair_BC127.exp config_file uart_port
+#
+# for debug mode:
+#exp_internal 1
+
+# set expect timeout
+set timeout 15
+#log_user 0
+set configfile "/home/pi/git/configfile.cfg" #<-- muss angepasst werden. 
+# zb. mit /home/richard/configfile.cfg
+# max number = 9999 $Digit Pin
+# Generating Random pin
+set pin [expr {int(rand() * 10000)}]
+set baud 9600
+set port "/dev/ttyUSB0"
+puts "pin: <$pin>\r"
+.....
+```
+weiter mit dem `./install/raspberry_InCarSensors_and_bt_installer.sh` Skript:
+
+```bash
+${INSTALL_BT_SCRIPT} ${USER_CONFIG_FILE} ${SERIAL_AUDIO_CONSOLE}
+if [ $? -ne 0 ]; then
+    return
+fi
+
+#resource file:
+source ${USER_CONFIG_FILE}
+#----->autostart recording on connect------
+echo "Autostart Recording when Bluetooth device gets connected."
+#http://www.instructables.com/id/Turn-your-Raspberry-Pi-into-a-Portable-Bluetooth-A/
+
+# writeout_file "/etc/udev/rules.d/99-input.rules"
+# sudo udevadm control --reload-rules
+
+echo "RF_TTY=\"rfcomm0\"" >> ${USER_CONFIG_FILE}
+writeout_file "/etc/bluetooth/rfcomm.conf"
+
+# weglassen da wir manuell die Aufnahme starten und beenden wollen.
+# writeout_file "/etc/systemd/system/${BT_SYSTEMD_SERVICE}" 
+# sudo systemctl enable ${BT_SYSTEMD_SERVICE}
+# sudo systemctl daemon-reload
+# srv=(${BT_SYSTEMD_SERVICE/./ })
+# sudo systemctl status $srv
+}
+``` 
+Nun sollte nach einem Neustart das Gerät im BL Manager sichtbar sein wie hier:
+
+![BL Manager](./docs/Bluetooth.png)
+

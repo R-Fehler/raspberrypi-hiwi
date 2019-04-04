@@ -1,0 +1,12 @@
+[Unit]
+Description=This service monitors the status of the S.USV In case of any voltage loss the service automatically shuts down the Raspberry Pi to prevent any data loss.
+After=syslog.target
+
+[Service]
+Type=forking
+ExecStart=/opt/susvd/susvd -start
+ExecStop=/opt/susvd/susvd -stop
+ExecReload=/opt/susvd/susvd -restart
+
+[Install]
+WantedBy=multi-user.target

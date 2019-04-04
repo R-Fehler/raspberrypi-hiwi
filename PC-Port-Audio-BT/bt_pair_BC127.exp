@@ -1,0 +1,221 @@
+#!/usr/bin/expect -f
+#
+# this script will automate the pairing of a bluetooth device with bluez5
+# on ttyUSB0 is a BS127 
+# start with: ./bt_pair_BC127.exp config_file uart_port
+#
+# for debug mode:
+#exp_internal 1
+
+# set expect timeout
+set timeout 15
+#log_user 0
+set configfile "/home/richard/configfile.cfg"
+# max number = 9999 $Digit Pin
+# Generating Random pin
+set pin [expr {int(rand() * 10000)}]
+set baud 9600
+set port "/dev/ttyUSB0"
+puts "pin: <$pin>\r"
+
+# set cmdline args.
+if { $argc > 1 } {
+  set configfile [lindex $argv 0 ]
+}
+if { $argc == 2 } {
+  set port [lindex $argv 1 ]
+}
+
+# set ttyUSB
+spawn -open [open $port r+]
+set serialID $spawn_id
+    # -parenb means don't use a parity bit
+    # -cstopb means "not 2 stop bits, but 1"
+    # cs8 means 8 bits
+    # -echo means no echo (full duplex?)
+stty ispeed $baud ospeed $baud raw -echo cs8 -parenb -cstopb onlcr < $port
+
+# send to tty to BC127
+# restore will discard any settings
+send "RESTORE\r"
+send_user "\nRestore BC127 Settings.\n"
+sleep 1
+
+# start new process bluetoothctl
+spawn bluetoothctl
+set btID $spawn_id
+
+send_user "\nlooking for mac address\n"
+expect {
+  #[NEW] Controller 00:02:72:01:A5:B9 raspberrypi [default]
+  "*Controller *default*" { 
+      # get MAC address from RPi and get a version without double-dots
+      set pi_mac [lindex [split $expect_out(0,string) { }] 4]
+      set pi_mac_tty [string map {":" ""} $pi_mac]
+      send_user "\nRPi: <$pi_mac>\nRPi:TTY: <$pi_mac_tty>\n"
+  }
+}
+send "\r"
+# start communicating with bluetoothctl
+expect {
+  timeout { send_user "\nFailed to start bluetoothctl\n"; exit 1 }
+  eof { send_user "\nBluetoothctl failure.\n"; exit 1 }
+  "# "
+}
+# remove unnecessary Bluetooth devices.
+send "remove \t\r"
+expect {
+  "Missing device address argument" { send_user "\nNo Paired device to remove\n" }
+  "\[DEL\] Device *" { send_user "\ndeleted device.\n" }
+}
+# enable agent
+send "agent on\r"
+expect {
+  timeout { send_user "\nAgent\n"; exit 1}
+  "Agent registered"
+}
+# ... default agent
+send "default-agent\r"
+expect {
+  timeout { send_user "\nDefault Agent\n"; exit 1}
+  "Default agent request successful"
+}
+
+send "discoverable on\r"
+expect "Changing discoverable on succeeded"
+expect "Controller $pi_mac Discoverable: yes"
+
+# UART sending function
+proc send_uart {send expect} {
+  send "$send\r"
+  send_user "\n$send\n"
+  expect {
+    timeout { send_user "\nFailed at <$send>\n" }
+    "$expect"
+  }
+}
+
+# now set settings in BC127 module:
+sleep 2
+set spawn_id $serialID
+set timeout 10
+send "\r"
+# send settings to BC127
+# BC127 will not be searchable
+send_uart "SET DISCOVERABLE=0 0" "OK"
+# will automatically connect to RPi
+send_uart "SET AUTOCONN=2" "OK"
+# disable LED's
+#send_uart "SET ENABLE_LED=OFF" "OK"
+# Max retrys for connection
+# Don't found maximum value, so tried and this was possible.
+send_uart "SET MAX_REC=2400" "OK"
+
+# set charge specification
+send_uart "SET BATT_CONFIG=ON 145 4250 1500 200" "OK"
+# dont using any GPIO's
+send_uart "SET GPIO_CONFIG=OFF 0 254" "OK"
+# using Analog audio 44,1kHz
+# 15 (0-31) gain; 10 (0-15) volume; no Bias; no Preamp
+send_uart "SET AUDIO_ANALOG=15 10 OFF OFF" "OK"
+# set BT device names
+send_uart "SET NAME=FAST1" "OK"
+send_uart "SET NAME_SHORT=FAST1" "OK"
+# only use A2DP and be the BT host
+# (hfp)(aghfp)(a2dp_snk)(a2dp_src)(avrcp)(ble)(spp)(pbap)(hid_device)(hid_host)(map)(iAP)
+send_uart "SET PROFILES=0 0 0 1 1 0 1 0 0 1 0 0" "OK"
+# Switch AVRCP version to 1.0; Disable Abs. Vol Control
+#send_uart "SET MUSIC_OLD_AVRCP=ON" "OK"
+# set pin for authentication
+send_uart "SET PIN=$pin" "OK"
+# set RPi address
+send_uart "SET REMOTE_ADDR=$pi_mac_tty" "OK"
+# save settings in non volatile storage
+send_uart "WRITE" "OK"
+# get MAC address from BC127
+send "GET LOCAL_ADDR\r"
+# get Bluetooth MAC Address of BC127
+send_user "\n"
+expect {
+  timeout { send_user "\nDid not get local_address from BC127. Quit!\n"; exit 1}
+  # get one without double-dots
+  "LOCAL_ADDR=*\r" {
+    set bc127_mac_tty [lindex [split $expect_out(0,string) {=}] 1]
+    set bc127_mac [string trimright [string trimright [regsub -all {..} $bc127_mac_tty {&:}]] ":"]
+  }
+}
+send_user "\nMAC: <$bc127_mac>\n"
+# start pairing
+send_uart "PAIR $pi_mac_tty" "PENDING"
+send_user "\nSend settings and pair request\n"
+
+# now use bt ctl interface
+set spawn_id $btID
+set timeout 15
+send_user "\nWaiting for pair request.\n"
+# wait for pairing request with pin
+expect {
+  timeout { send_user "\nThere was no Pin Request\n"}
+  # Request PIN code
+  "*Enter PIN code: " {
+    # send pin
+    send -i $btID "$pin\r"
+    # wait for finishing request and for next command ready
+    expect {
+        timeout { send_user "\nFailed to send pin.\n"; exit 1}
+        "Request canceled" { send_user "\nRequest was canceled, waited to long.\n"; exit 1}
+        "# "
+    }
+  }
+}
+
+# check if paired successful
+expect {
+  timeout { send_user "\nFailed to pair device.\n" }
+  "*Device * Paired: yes" { send_user "\nsuccessful paired device.\n" }
+}
+
+# make connection from BC127
+set spawn_id $serialID
+sleep 2
+set timeout 10
+send_user "\nsend open connection\n"
+# open A2DP connection
+send_uart "OPEN $pi_mac_tty A2DP" "PENDING"
+sleep 2
+
+set spawn_id $btID
+send_user "\nWaiting for open connection.\n"
+# wait for
+expect {
+  timeout { send_user "\nThere was no bluetoothdevice needed to authorize his services by bt adapter.\n"}
+  "*Authorize service * (yes/no): " {
+    # authorisize A2DP connection
+    send -i $btID "yes\r"
+  }
+}
+
+expect {
+  timeout { send_user "\nThere was no # for trusting device.\n"; exit 1 }
+  "# "
+}
+# trust the BC127 for further connection
+send "trust $bc127_mac\r"
+expect {
+  "*Device $bc127_mac Trusted: yes"
+}
+expect "# "
+# get info from BC127 MAC address
+send "info $bc127_mac\r"
+expect {
+  "*Modalias*" { send_user "\nFinish program.\n" }
+}
+close
+
+# set config in costum config file
+set fileId [open $configfile "w"]
+puts $fileId "RPi_MAC=\"$pi_mac\""
+puts $fileId "BC127_MAC=\"$bc127_mac\""
+close $fileId
+
+exit 0

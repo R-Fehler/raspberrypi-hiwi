@@ -1,0 +1,108 @@
+richard@richardubuntu:~$ ./bt_pair_BC127.exp configfile.cfg /dev/ttyUSB0 
+pin: <5814>
+spawn [open ...]
+
+Restore BC127 Settings.
+spawn bluetoothctl
+
+looking for mac address
+[NEW] Controller 54:27:1E:67:E2:1B richardubuntu [default]
+[bluetooth]# 
+RPi: <54:27:1E:67:E2:1B>
+RPi:TTY: <54271E67E21B>
+[NEW] Device DC:2C:26:AE:61:48 BM30X mouse
+[bluetooth]# remove DC:2C:26:AE:61:48 
+Device has been removed
+[CHG] Device DC:2C:26:AE:61:48 Connected: no
+[DEL] Device DC:2C:26:AE:61:48 BM30X mouse
+[bluetooth]# agent on
+Agent registered
+[bluetooth]# default-agent
+Default agent request successful
+[bluetooth]# discoverable on
+Changing discoverable on succeeded
+[CHG] Controller 54:27:1E:67:E2:1B Discoverable: yes
+[bluetooth]# 
+SET DISCOVERABLE=0 0
+OKROR 0x001263249.36 t 2015
+SET AUTOCONN=2
+OK
+SET MAX_REC=2400
+OK
+SET BATT_CONFIG=ON 145 4250 1500 200
+OK
+SET GPIO_CONFIG=OFF 0 254
+OK
+SET AUDIO_ANALOG=15 10 OFF OFF
+ERROR 0x0013
+Failed at <SET AUDIO_ANALOG=15 10 OFF OFF>
+
+SET NAME=FAST1
+OK
+SET NAME_SHORT=FAST1
+OK
+SET PROFILES=0 0 0 1 1 0 1 0 0 1 0 0
+OK
+SET PIN=5814
+OK
+SET REMOTE_ADDR=54271E67E21B
+OK
+WRITE
+OK
+OKCAL_ADDR=20FABB037C4B
+>:K: <20:FA:BB:03:7C:4B:
+
+PAIR 54271E67E21B
+PENDING
+Send settings and pair request
+
+Waiting for pair request.
+[NEW] Device 20:FA:BB:03:7C:4B BC-037C4B
+[CHG] Device 20:FA:BB:03:7C:4B Connected: no
+[CHG] Device 20:FA:BB:03:7C:4B Connected: yes
+[CHG] Device 20:FA:BB:03:7C:4B Modalias: bluetooth:v0002p0003d0004
+[CHG] Device 20:FA:BB:03:7C:4B UUIDs: 00001101-0000-1000-8000-00805f9b34fb
+[CHG] Device 20:FA:BB:03:7C:4B UUIDs: 00001108-0000-1000-8000-00805f9b34fb
+[CHG] Device 20:FA:BB:03:7C:4B UUIDs: 0000110a-0000-1000-8000-00805f9b34fb
+[CHG] Device 20:FA:BB:03:7C:4B UUIDs: 0000110b-0000-1000-8000-00805f9b34fb
+[CHG] Device 20:FA:BB:03:7C:4B UUIDs: 0000110c-0000-1000-8000-00805f9b34fb
+[CHG] Device 20:FA:BB:03:7C:4B UUIDs: 0000110e-0000-1000-8000-00805f9b34fb
+[CHG] Device 20:FA:BB:03:7C:4B UUIDs: 0000111e-0000-1000-8000-00805f9b34fb
+[CHG] Device 20:FA:BB:03:7C:4B UUIDs: 00001133-0000-1000-8000-00805f9b34fb
+[CHG] Device 20:FA:BB:03:7C:4B UUIDs: 00001200-0000-1000-8000-00805f9b34fb
+[CHG] Device 20:FA:BB:03:7C:4B Paired: yes
+[CHG] Device 20:FA:BB:03:7C:4B Connected: no
+[bluetooth]# 
+There was no Pin Request
+
+successful paired device.
+
+send open connection
+
+OPEN 54271E67E21B A2DP
+PAIR_OK 54271E67E21B
+Waiting for open connection.
+[CHG] Device 20:FA:BB:03:7C:4B Connected: yes
+Authorize service
+ yesnt] Authorize service 0000110d-0000-1000-8000-00805f9b34fb (yes/no): 
+[BC-037C4B]# trust 20:FA:BB:03:7C:4B:
+Device 20:FA:BB:03:7C:4B: not available
+[BC-037C4B]# O:K
+Invalid command
+[CHG] Device 20:FA:BB:03:7C:4B UUIDs: 00001101-0000-1000-8000-00805f9b34fb
+[CHG] Device 20:FA:BB:03:7C:4B UUIDs: 00001108-0000-1000-8000-00805f9b34fb
+[CHG] Device 20:FA:BB:03:7C:4B UUIDs: 0000110a-0000-1000-8000-00805f9b34fb
+[CHG] Device 20:FA:BB:03:7C:4B UUIDs: 0000110b-0000-1000-8000-00805f9b34fb
+[CHG] Device 20:FA:BB:03:7C:4B UUIDs: 0000110c-0000-1000-8000-00805f9b34fb
+[CHG] Device 20:FA:BB:03:7C:4B UUIDs: 0000110d-0000-1000-8000-00805f9b34fb
+[CHG] Device 20:FA:BB:03:7C:4B UUIDs: 0000110e-0000-1000-8000-00805f9b34fb
+[CHG] Device 20:FA:BB:03:7C:4B UUIDs: 0000111e-0000-1000-8000-00805f9b34fb
+[CHG] Device 20:FA:BB:03:7C:4B UUIDs: 00001133-0000-1000-8000-00805f9b34fb
+[CHG] Device 20:FA:BB:03:7C:4B UUIDs: 00001200-0000-1000-8000-00805f9b34fb
+[CHG] Device 20:FA:BB:03:7C:4B Connected: no
+[bluetooth]# info 20:FA:BB:03:7C:4B:
+Device 20:FA:BB:03:7C:4B: not available
+[bluetooth]# O:K
+Invalid command
+[CHG] Device 20:FA:BB:03:7C:4B Connected: yes
+Authorize service

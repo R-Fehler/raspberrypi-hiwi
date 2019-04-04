@@ -1,0 +1,2 @@
+SUBSYSTEM=="bluetooth", MODE=="0660", ATTRS{address}=="${BC127_MAC,,}"
+ACTION=="add", KERNEL=="hci[0-9]:*", RUN+="/bin/systemctl --no-block start save-bt-audio.service"

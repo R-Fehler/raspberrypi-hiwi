@@ -1,0 +1,13 @@
+[Unit]
+Description=Sensor Recorder
+After=multi-user.target
+
+[Service]
+Type=simple
+User=pi
+Restart=always
+ExecStart=/usr/bin/python3 /home/pi/git/raspberrypi/Programs/SensorRecorder.py
+
+[Install]
+WantedBy=multi-user.target
+
